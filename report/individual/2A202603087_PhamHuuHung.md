@@ -96,12 +96,13 @@ Các lỗi tương tác giữa nhiều người trong cùng một khung hình �
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | Tên file MOT 1.1                                             | `src/exports/PhamHuuHung_mot.zip`                                                                          |
 | Tên file CVAT for video 1.1                                  | `src/exports/PhamHuuHung_cvat_video.zip`                                                                   |
-| Số track ID khác nhau trong `gt/gt.txt` (phải là 5)          | `5`                                                                                                        |
+| Số track ID khác nhau trong `gt/gt.txt`                      | `5` track chính (`P1–P5`) + `1` track Bonus B1 (người đi sát cùng `P3`) = **`6` track**                    |
 | Frame `outside` không có dòng trong `gt/gt.txt` (đúng / sai) | `Đúng` (ví dụ P1 ở frame CVAT 41–43 ứng với `frame_id` 42–44 không có dòng nào cho Track 1 trong `gt.txt`) |
 | Job đã completed trên CVAT máy cá nhân                       | `Đã completed`                                                                                             |
 
 Dán phần tóm tắt in ra từ `src/check_submission.py`:
 
+**1. Kết quả kiểm tra 5 track chính (`P1–P5`):**
 ```text
 Số frame in theo CVAT (bắt đầu từ 0). Trong gt.txt, frame_id = frame CVAT + 1.
 
@@ -139,6 +140,47 @@ Số frame in theo CVAT (bắt đầu từ 0). Trong gt.txt, frame_id = frame CV
   Đạt. Dán phần tóm tắt này vào báo cáo mục 5.
 ```
 
+**2. Kết quả kiểm tra sau khi gán thêm người đi sát cho Bonus B1 (`--expected 6`, tổng 6 track):**
+```text
+Số frame in theo CVAT (bắt đầu từ 0). Trong gt.txt, frame_id = frame CVAT + 1.
+
+=== File MOT 1.1: PhamHuuHung_mot.zip ===
+  Số track ID: 6   |   Tổng số box: 817
+  [OK]        Đúng 6 track ID.
+
+  Track | Frame có mặt | Số frame | Đoạn vắng (outside)
+      1 |   0–149      |      147 | 41–43
+      2 |   0–138      |      121 | 106–123
+      3 |   0–149      |      150 | -
+      4 |   0–149      |      138 | 120–121, 138–147
+      5 |   0–149      |      150 | -
+      6 |  39–149      |      111 | -
+
+
+=== File CVAT for video 1.1: PhamHuuHung_cvat_video.zip ===
+
+  Track | Nhãn   | Frame thấy | Keyframe | KF/100 frame | Frame occluded | Lần bật outside
+      0 | person |        147 |       39 |         26.5 |             66 |               1
+              Track 0: keyframe ở frame [0, 8, 9, 11, 13, 25, 33, 35, 39, 44, 47, 51, 52, 54, 55, 56, 57, 58, 59, 62, 67, 70, 72, 85, 87, 90, 91, 95, 97, 101, 103, 106, 108, 112, 115, 121, 137, 141, 149]
+      1 | person |        111 |       20 |         18.0 |             62 |               0
+              Track 1: keyframe ở frame [39, 40, 41, 42, 44, 45, 52, 58, 64, 67, 77, 87, 97, 101, 107, 117, 127, 137, 147, 149]
+      2 | person |        121 |       13 |         10.7 |             31 |               2
+              Track 2: keyframe ở frame [0, 10, 20, 30, 40, 50, 90, 100, 105, 124, 127, 137, 138]
+      3 | person |        150 |       16 |         10.7 |              0 |               0
+              Track 3: keyframe ở frame [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 149]
+      4 | person |        138 |       35 |         25.4 |             28 |               2
+              Track 4: keyframe ở frame [0, 10, 20, 30, 35, 36, 37, 40, 44, 50, 56, 60, 68, 70, 80, 90, 100, 110, 114, 117, 118, 119, 122, 125, 126, 127, 128, 131, 133, 134, 135, 136, 137, 148, 149]
+      5 | person |        150 |       18 |         12.0 |              0 |               0
+              Track 5: keyframe ở frame [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 126, 130, 135, 140, 149]
+
+  Tổng: 141 keyframe / 817 frame có mặt = 17.3 keyframe / 100 frame
+  [OK]        Đọc được 6 track từ annotations.xml.
+
+=== Tóm tắt ===
+  Lỗi: 0   |   Cảnh báo: 0
+  Đạt. Dán phần tóm tắt này vào báo cáo mục 5.
+```
+
 ## 6. Ba câu kết
 
 1. Nếu được gán lại, bạn sẽ đặt keyframe khác ở đâu? Vì sao?
@@ -159,16 +201,31 @@ Số frame in theo CVAT (bắt đầu từ 0). Trong gt.txt, frame_id = frame CV
 
 ### B1 — Hai người đi sát
 
-...
+- **Cặp người đi sát được gán**:
+  1. **Người thứ nhất (đã có trong đề C)**: **P3** *(CVAT Track 3 / MOT Track 3, ứng với MOT17 ID 20)*.
+  2. **Người thứ hai (gán thêm cho Bonus B1)**: Người đàn ông đi sóng đôi sát ngay bên trái **P3** ở tiền cảnh từ phải sang trái suốt 150 frame *(CVAT Track 5 / MOT Track 5 trong bản xuất 6 track, ứng với MOT17 ID 19, toạ độ tham chiếu frame 0: `xtl=1692.5, ytl=384.8, xbr=1857.7, ybr=730.2`)*.
+- **Thông số Track gán thêm (`CVAT Track 5`)**:
+  - Xuất hiện: xuyên suốt từ frame **0 đến 149** (**150 frame** có mặt).
+  - Số keyframe: **18 keyframe** tại các frame `[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 126, 130, 135, 140, 149]` (**12.0 keyframe / 100 frame**).
+- **Xử lý tránh đổi ID (`IDSW = 0`)**:
+  - Hai người **P3 (`CVAT Track 3`)** và người đi cùng (`CVAT Track 5`) đi sát cạnh nhau suốt từ frame `0` đến `149`, đồng thời khi tiến về phía trung tâm khung hình (quanh frame `90–140`), `CVAT Track 5` đi cắt trực tiếp qua trước mặt **P4 (`CVAT Track 2`, khoảng cách tâm ngang chỉ còn `54.3px` ở frame 105)** và **P5 (`CVAT Track 4`, khoảng cách tâm ngang chỉ còn `29.9px` ở frame 119)**.
+  - Nhờ đặt thêm keyframe dày hơn ở đoạn giao cắt (`120, 126, 130, 135, 140`) và duy trì đúng thứ tự lớp che khuất (`outside` / `occluded` cho P4 và P5 phía sau), cả 2 người đi sát cũng như các track cắt ngang đều giữ nguyên ID riêng biệt từ đầu đến cuối (`IDSW = 0`, `Frag = 0`, kiểm tra với `--expected 6` đạt `Lỗi: 0 | Cảnh báo: 0`).
 
 ### B2 — So cách đặt keyframe
 
-| Cách đặt           | Số keyframe | Frame trôi nhất | Ghi chú |
-| ------------------ | ----------: | --------------: | ------- |
-| Đều mỗi 30 frame   |             |                 |         |
-| Theo chỗ đổi hướng |             |                 |         |
+Đối tượng thử nghiệm: **P5** *(CVAT Track 4 / PERSON 5, so sánh với Track phụ PERSON 6 đặt keyframe đều mỗi 30 frame tại `0, 30, 60, 90, 120, 149`)*.
 
-...
+| Cách đặt           | Số keyframe | Frame trôi nhất (CVAT) | Ghi chú |
+| ------------------ | ----------: | ---------------------: | ------- |
+| Đều mỗi 30 frame   |           6 |                     37 *(và 119–122)* | Đặt cố định tại frame `0, 30, 60, 90, 120, 149` (không chỉnh giữa chừng); ở frame 37 box (`389.5×665.1px`) bị lệch hẳn sang phải và cắt mất toàn bộ cánh tay phải đang giơ ra của P5 |
+| Theo chỗ đổi hướng |          35 |                      - | Đặt keyframe tại các mốc P5 đổi vận tốc, vung tay (frame `35, 36, 37, 40, 44`) và quanh đoạn bị che (`114–137, 148–149`); box (`470.5×670.1px` ở frame 37) bám sát toàn thân trên mọi frame |
+
+**Giải thích bằng giả định vận tốc không đổi của nội suy tuyến tính**:
+Giữa hai keyframe $k_0 = 30$ và $k_1 = 60$, CVAT nội suy tuyến tính toạ độ $(x, y, w, h)$ theo công thức $b(t) = b(k_0) + \frac{t - k_0}{k_1 - k_0}\big(b(k_1) - b(k_0)\big)$, tức là giả định **vận tốc di chuyển của tâm box và tốc độ thay đổi kích thước $(w, h)$ là hằng số** trong suốt 30 frame (1 giây). Tuy nhiên, thực tế trong khoảng frame `35–40`, người **P5** đột ngột bước chậm lại, xoay người và giơ rộng cánh tay phải ra chỉ đường (làm chiều rộng thật tăng vọt lên `470.5px` và biên trái dịch mạnh sang trái), rồi trước frame `60` lại thu tay về đi tiếp. Vì ở cả mốc `30` lẫn mốc `60` tay của P5 đều đã khép lại, đường nội suy tuyến tính nối thẳng từ frame `30` đến `60` hoàn toàn bỏ qua biến thiên phi tuyến ở giữa, dẫn tới tại **frame 37** box nội suy (`PERSON 6`) bị trôi lệch tâm hơn `72px` và cắt cụt cánh tay của P5.
+
+Ảnh chụp màn hình tại frame trôi nhất *(Nguồn ảnh gốc: MOT17, MOTChallenge — Milan et al., 2016)*:
+
+![So sánh Track chính (PERSON 5) và Track phụ đặt keyframe mỗi 30 frame (PERSON 6) bị trôi tại frame 37](images/bonus_b2_drift.png)
 
 ### B3 — So với tracker có sẵn
 
